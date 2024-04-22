@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>d3 Zoom Example</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <svg width="600" height="400" />
+</body>
+</html>
+<script>
+
+const data = {
+    nodes: [
+      {id: 1, x: 100, y: 50},
+      {id: 2, x: 50, y: 100},
+      {id: 3, x: 150, y: 100},
+      {id: 4, x: 200, y: 100},
+    ],
+    links: [
+      {source: 1, target: 2},
+      {source: 1, target: 3},
+      {source: 1, target: 4},
+
+    ]
+  };
+  
+  const svg = d3.select('svg');
+  const g = svg.append('g');
+  
+  const handleZoom = (e) => g.attr('transform', e.transform);
+  
+  const zoom = d3.zoom().on('zoom', handleZoom);
+  
+  d3.select('svg').call(zoom);
+  
+  const links = data.links.map(l => {
+    const source = data.nodes.find(n => n.id === l.source);
+    const target = data.nodes.find(n => n.id === l.target);
+    return {source, target};
+  });
+  
+  console.log(links);
+  
+  g.selectAll('line.link')
+    .data(links, d => `${d.source.id}-${d.target.id}`)
+    .enter()
+    .append('line')
+    .classed('link', true)
+    .attr('x1', d => d.source.x)  
+    .attr('x2', d => d.target.x)  
+    .attr('y1', d => d.source.y)  
+    .attr('y2', d => d.target.y)
+    .style('stroke', 'black');
+    
+  const nodes = g.selectAll('g.node')
+    .data(data.nodes, d => d.id)
+    .enter()
+    .append('g')
+    .classed('node', true)
+    .attr('transform', d => `translate(${d.x},${d.y})`);
+    
+  nodes.append('circle')
+    .attr('r', 10)
+    .style('fill', 'blue');
+
+</script>
